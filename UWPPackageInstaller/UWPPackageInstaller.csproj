@@ -175,12 +175,6 @@
   <ItemGroup>
     <None Include="UWPPackageInstaller_TemporaryKey.pfx" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\installTask\InstallTask.csproj">
-      <Project>{8ad22b09-60cd-4509-92eb-3e0c56b1c0af}</Project>
-      <Name>InstallTask</Name>
-    </ProjectReference>
-  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

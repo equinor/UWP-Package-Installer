@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstallTask", "installTask\InstallTask.csproj", "{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UWPPackageInstaller", "UWPPackageInstaller\UWPPackageInstaller.csproj", "{9DCD1469-A8F6-4037-B50A-D37EBA91E7B8}"
 EndProject
 Global
@@ -21,26 +19,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|ARM.ActiveCfg = Debug|ARM
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|ARM.Build.0 = Debug|ARM
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|ARM64.Build.0 = Debug|ARM64
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|x64.ActiveCfg = Debug|x64
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|x64.Build.0 = Debug|x64
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|x86.ActiveCfg = Debug|x86
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Debug|x86.Build.0 = Debug|x86
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|ARM.ActiveCfg = Release|ARM
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|ARM.Build.0 = Release|ARM
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|ARM64.ActiveCfg = Release|ARM64
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|ARM64.Build.0 = Release|ARM64
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|x64.ActiveCfg = Release|x64
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|x64.Build.0 = Release|x64
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|x86.ActiveCfg = Release|x86
-		{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}.Release|x86.Build.0 = Release|x86
 		{9DCD1469-A8F6-4037-B50A-D37EBA91E7B8}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{9DCD1469-A8F6-4037-B50A-D37EBA91E7B8}.Debug|ARM.ActiveCfg = Debug|ARM
 		{9DCD1469-A8F6-4037-B50A-D37EBA91E7B8}.Debug|ARM.Build.0 = Debug|ARM
