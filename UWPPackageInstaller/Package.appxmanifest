@@ -21,39 +21,6 @@
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
-        <Extension Category="windows.backgroundTasks" EntryPoint="InstallTask.Install">
-          <BackgroundTasks>
-            <Task Type="pushNotification" />
-          </BackgroundTasks>
-        </Extension>
-        <uap:Extension Category="windows.fileTypeAssociation">
-          <uap:FileTypeAssociation Name="appx">
-            <uap:SupportedFileTypes>
-              <uap:FileType>.appx</uap:FileType>
-            </uap:SupportedFileTypes>
-          </uap:FileTypeAssociation>
-        </uap:Extension>
-        <uap:Extension Category="windows.fileTypeAssociation">
-          <uap:FileTypeAssociation Name="appxbundle">
-            <uap:SupportedFileTypes>
-              <uap:FileType>.appxbundle</uap:FileType>
-            </uap:SupportedFileTypes>
-          </uap:FileTypeAssociation>
-        </uap:Extension>
-        <uap:Extension Category="windows.fileTypeAssociation">
-          <uap:FileTypeAssociation Name="msixbundle">
-            <uap:SupportedFileTypes>
-              <uap:FileType>.msixbundle</uap:FileType>
-            </uap:SupportedFileTypes>
-          </uap:FileTypeAssociation>
-        </uap:Extension>
-        <uap:Extension Category="windows.fileTypeAssociation">
-          <uap:FileTypeAssociation Name="msix">
-            <uap:SupportedFileTypes>
-              <uap:FileType>.msix</uap:FileType>
-            </uap:SupportedFileTypes>
-          </uap:FileTypeAssociation>
-        </uap:Extension>
         <uap:Extension Category="windows.protocol">
           <uap:Protocol Name="echoinstaller" DesiredView="useMore">
             <uap:DisplayName>Echo Installer</uap:DisplayName>

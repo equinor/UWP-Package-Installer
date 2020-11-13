@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Windows.ApplicationModel.Core;
@@ -7,15 +6,13 @@ using Windows.Foundation;
 using Windows.Management.Deployment;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
 namespace UWPPackageInstaller
 {
-    // ReSharper disable once RedundantExtendsListEntry
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage
     {
-        readonly PackageManager _pkgManager = new PackageManager();
+        readonly PackageManager _packageManager = new PackageManager();
 
         public MainPage()
         {
@@ -26,20 +23,7 @@ namespace UWPPackageInstaller
 
         private (Uri, string) _appDownloadInfo;
 
-        public bool IsUrlValidForEcho(Uri fileUri)
-        {
-            // WARNING: This is a potential security issue: if anyone uses this URI they will be able to install apps on our HoloLenses.
-            var hostAllowList = new List<string>
-            {
-                @"stemrappsdev.blob.core.windows.net",
-                @"stemrappsprod.blob.core.windows.net"
-            };
-
-            return (hostAllowList.Contains(fileUri.Host) && fileUri.Scheme == "https");
-        }
-
-
-        protected override void OnNavigatedTo(NavigationEventArgs e)
+       protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
@@ -47,7 +31,7 @@ namespace UWPPackageInstaller
             {
                 var inputSasUrl = new Uri(uriParam.OriginalString.Remove(0, "echoinstaller://".Length));
 
-                if (!IsUrlValidForEcho(inputSasUrl))
+                if (!EchoUrlValidator.IsUrlValidForEcho(inputSasUrl))
                 {
                     PermissionTextBlock.Text = "Input url is invalid. Cannot install this app.";
                     return;
@@ -98,7 +82,7 @@ namespace UWPPackageInstaller
 
             try
             {
-                var result = await _pkgManager.AddPackageAsync(fileToDownload, null,
+                var result = await _packageManager.AddPackageAsync(fileToDownload, null,
                         DeploymentOptions.ForceApplicationShutdown | DeploymentOptions.ForceUpdateFromAnyVersion)
                     .AsTask(progressCallback);
                 ensureIsAppRegistered(result);
