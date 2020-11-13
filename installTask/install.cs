@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Background;
 using Windows.Management.Deployment;
 
-namespace installTask
+namespace InstallTask
 {
     public sealed class Install : IBackgroundTask
     {

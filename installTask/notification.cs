@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Windows.UI.Notifications;
 using Microsoft.Toolkit.Uwp.Notifications;
 
-namespace installTask
+namespace InstallTask
 {
     public sealed class Notification
     {
@@ -99,21 +99,17 @@ namespace installTask
                     BindingGeneric = new ToastBindingGeneric()
                     {
                         Children =
-                {
-                    new AdaptiveText()
-                    {
-                        Text = "Install Status"
-                    },
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = "Install Status"
+                            },
 
-                    new AdaptiveText()
-                    {
-                        Text=$"The Package has finished Installing!"
-                    }
-
-
-
-
-                }
+                            new AdaptiveText()
+                            {
+                                Text=$"The Package has finished Installing!"
+                            }
+                        }
                     }
                 }
             };
@@ -146,24 +142,24 @@ namespace installTask
                     BindingGeneric = new ToastBindingGeneric()
                     {
                         Children =
-                {
-                    new AdaptiveText()
-                    {
-                        Text = "Install Status"
-                    },
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = "Install Status"
+                            },
 
-                    new AdaptiveText()
-                    {
-                        Text=$"Installation has failed"
-                    },
+                            new AdaptiveText()
+                            {
+                                Text=$"Installation has failed"
+                            },
 
-                    new AdaptiveText()
-                    {
-                        Text=$"{errorText}"
-                    }
+                            new AdaptiveText()
+                            {
+                                Text=$"{errorText}"
+                            }
 
 
-                }
+                        }
                     }
                 }
             };
