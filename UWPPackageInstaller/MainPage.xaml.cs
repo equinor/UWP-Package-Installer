@@ -12,9 +12,6 @@ using Windows.UI.Xaml.Navigation;
 
 namespace UWPPackageInstaller
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     // ReSharper disable once RedundantExtendsListEntry
     public sealed partial class MainPage : Page
     {
@@ -26,7 +23,6 @@ namespace UWPPackageInstaller
             ApplicationView.PreferredLaunchViewSize = new Size(700, 500);
             ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
         }
-
 
         private (Uri, string) _appDownloadInfo;
 
@@ -98,7 +94,7 @@ namespace UWPPackageInstaller
             string resultText = "Nothing";
 
             Notification.ShowInstallationHasStarted(packageName);
-            bool pkgRegistered = true;
+            var pkgRegistered = true;
 
             try
             {
@@ -115,7 +111,6 @@ namespace UWPPackageInstaller
                 resultText = e.Message;
                 pkgRegistered = false;
             }
-
 
             CancelButton.Content = "Exit";
             CancelButton.Visibility = Visibility.Visible;
@@ -137,15 +132,15 @@ namespace UWPPackageInstaller
         /// <param name="result"></param>
         private static void ensureIsAppRegistered(DeploymentResult result)
         {
-            if (!result.IsRegistered)
-            {
-                Debug.WriteLine(result.ErrorText);
-                throw result.ExtendedErrorCode;
-            }
+            if (result.IsRegistered) 
+                return;
+            
+            Debug.WriteLine(result.ErrorText);
+            throw result.ExtendedErrorCode;
         }
 
         /// <summary>
-        /// Updates the progress bar and status of the installation in the app's UI.
+        /// Updates the progress bar and status of the installation in the app UI.
         /// </summary>
         /// <param name="installProgress"></param>
         private void installProgress(DeploymentProgress installProgress)
