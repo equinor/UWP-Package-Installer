@@ -8,13 +8,13 @@ using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace UWPPackageInstaller
 {
-    public class notification
+    public class Notification
     {
 
         //Note: You can update or replace a toast notification by updating/sending another toast using
         //The same tag and group as the original toast.
 
-        public static void showInstallationHasStarted(string packageName)
+        public static void ShowInstallationHasStarted(string packageName)
         {
             // Define a tag value and a group value to uniquely identify a notification, in order to target it to apply the update later;
             string toastTag = "appInstall";
@@ -60,7 +60,7 @@ namespace UWPPackageInstaller
             ToastNotificationManager.CreateToastNotifier().Show(toast);
         }
 
-        public static void sendError(string errorText)
+        public static void SendError(string errorText)
         {
             string toastTag = "appInstall";
             string toastGroup = "Install1";

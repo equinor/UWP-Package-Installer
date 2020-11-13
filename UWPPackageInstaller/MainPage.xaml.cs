@@ -27,13 +27,13 @@ namespace UWPPackageInstaller
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        StorageFile packageInContext;
-        List<Uri> dependencies = new List<Uri>();
+        StorageFile _packageInContext;
+        List<Uri> _dependencies = new List<Uri>();
         //ValueSet cannot contain values of the URI class which is why there is another list below.
         //This is required to update the progress in a notification using a background task.
-        List<string> dependenciesAsString = new List<string>();
+        List<string> _dependenciesAsString = new List<string>();
 
-        bool pkgRegistered = false;
+        bool _pkgRegistered = false;
         public MainPage()
         {
             this.InitializeComponent();
@@ -53,8 +53,8 @@ namespace UWPPackageInstaller
             try
             {
                 StorageFile package = (StorageFile)e.Parameter;
-                packageInContext = package;
-                updateUIForPackageInstallation();
+                _packageInContext = package;
+                updateUiForPackageInstallation();
             }
             catch (Exception x)
             {
@@ -69,9 +69,9 @@ namespace UWPPackageInstaller
             }
         }
 
-        private void updateUIForPackageInstallation()
+        private void updateUiForPackageInstallation()
         {
-            packageNameTextBlock.Text = packageInContext.DisplayName;
+            packageNameTextBlock.Text = _packageInContext.DisplayName;
             loadFileButton.Content = "Load a different file";
 
         }
@@ -135,12 +135,12 @@ namespace UWPPackageInstaller
             Progress<DeploymentProgress> progressCallback = new Progress<DeploymentProgress>(installProgress);
             string resultText = "Nothing";
 
-            notification.showInstallationHasStarted(packageInContext.Name);
-            if (dependencies != null && dependencies.Count > 0)
+            Notification.ShowInstallationHasStarted(_packageInContext.Name);
+            if (_dependencies != null && _dependencies.Count > 0)
             {
                 try
                 {
-                    var result = await pkgManager.AddPackageAsync(new Uri(packageInContext.Path), dependencies, DeploymentOptions.ForceTargetApplicationShutdown).AsTask(progressCallback);
+                    var result = await pkgManager.AddPackageAsync(new Uri(_packageInContext.Path), _dependencies, DeploymentOptions.ForceTargetApplicationShutdown).AsTask(progressCallback);
                     checkIfPackageRegistered(result, resultText);
 
                 }
@@ -155,7 +155,7 @@ namespace UWPPackageInstaller
                 try
                 {
 
-                    var result = await pkgManager.AddPackageAsync(new Uri(packageInContext.Path), null, DeploymentOptions.ForceTargetApplicationShutdown).AsTask(progressCallback);
+                    var result = await pkgManager.AddPackageAsync(new Uri(_packageInContext.Path), null, DeploymentOptions.ForceTargetApplicationShutdown).AsTask(progressCallback);
                     checkIfPackageRegistered(result, resultText);
                 }
 
@@ -168,10 +168,10 @@ namespace UWPPackageInstaller
 
             cancelButton.Content = "Exit";
             cancelButton.Visibility = Visibility.Visible;
-            if (pkgRegistered == true)
+            if (_pkgRegistered == true)
             {
                 permissionTextBlock.Text = "Completed";
-                notification.ShowInstallationHasCompleted(packageInContext.Name);
+                Notification.ShowInstallationHasCompleted(_packageInContext.Name);
 
 
 
@@ -179,7 +179,7 @@ namespace UWPPackageInstaller
             else
             {
                 resultTextBlock.Text = resultText;
-                notification.sendError(resultText);
+                Notification.SendError(resultText);
             }
         }
 
@@ -187,7 +187,7 @@ namespace UWPPackageInstaller
         {
             if (result.IsRegistered)
             {
-                pkgRegistered = true;
+                _pkgRegistered = true;
             }
             else
             {
@@ -203,13 +203,13 @@ namespace UWPPackageInstaller
         {
             permissionTextBlock.Text = "Check Your Notifications/Action Center 😉";
             var thingsToPassOver = new ValueSet();
-            thingsToPassOver.Add("packagePath", packageInContext.Path);
-            if (dependenciesAsString != null & dependenciesAsString.Count > 0)
+            thingsToPassOver.Add("packagePath", _packageInContext.Path);
+            if (_dependenciesAsString != null & _dependenciesAsString.Count > 0)
             {
-                int count = dependenciesAsString.Count();
+                int count = _dependenciesAsString.Count();
                 for (int i = 0; i < count; i++)
                 {
-                    thingsToPassOver.Add($"dependencies{i}", dependenciesAsString[i]);
+                    thingsToPassOver.Add($"dependencies{i}", _dependenciesAsString[i]);
                 }
                 thingsToPassOver.Add("installType", 1);
             }
@@ -229,7 +229,7 @@ namespace UWPPackageInstaller
             {
                 if (task.Value.Name == "installTask")
                 {
-                    AttachCompletedHandler(task.Value);
+                    attachCompletedHandler(task.Value);
 
                 }
             }
@@ -247,7 +247,7 @@ namespace UWPPackageInstaller
             });
         }
 
-        private void AttachCompletedHandler(IBackgroundTaskRegistration task)
+        private void attachCompletedHandler(IBackgroundTaskRegistration task)
         {
             task.Completed += new BackgroundTaskCompletedEventHandler(OnCompleted);
         }
@@ -339,11 +339,11 @@ namespace UWPPackageInstaller
             if (file != null)
             {
                 //UI changes to allow the user to install the package
-                packageInContext = file;
+                _packageInContext = file;
                 permissionTextBlock.Text = "Do you want to install this package?";
                 installButton.Visibility = Visibility.Visible;
                 cancelButton.Content = "Cancel";
-                packageNameTextBlock.Text = packageInContext.DisplayName;
+                packageNameTextBlock.Text = _packageInContext.DisplayName;
                 loadFileButton.Content = "Load a different file";
             }
         }
@@ -355,7 +355,7 @@ namespace UWPPackageInstaller
         /// <param name="e"></param>
         private async void loadDependenciesButton_Click(object sender, RoutedEventArgs e)
         {
-            dependencies = new List<Uri>();
+            _dependencies = new List<Uri>();
             var picker = new Windows.Storage.Pickers.FileOpenPicker();
             picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.List;
             picker.FileTypeFilter.Add(".appx");
@@ -369,13 +369,13 @@ namespace UWPPackageInstaller
 
                 foreach (var dependency in files)
                 {
-                    dependencies.Add(new Uri(dependency.Path));
+                    _dependencies.Add(new Uri(dependency.Path));
                 }
 
 
                 foreach (var dependency in files)
                 {
-                    dependenciesAsString.Add(dependency.Path);
+                    _dependenciesAsString.Add(dependency.Path);
                 }
 
                 loadDependenciesButton.Content = "Load different dependencies";

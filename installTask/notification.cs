@@ -8,7 +8,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace installTask
 {
-    public sealed class notification
+    public sealed class Notification
     {
 
         //Note: You can update or replace a toast notification by updating/sending another toast using
@@ -86,7 +86,7 @@ namespace installTask
             NotificationUpdateResult updateResult = ToastNotificationManager.CreateToastNotifier().Update(data, tag, group);
         }
 
-        public static void showInstallationHasCompleted()
+        public static void ShowInstallationHasCompleted()
         {
             string toastTag = "appInstall";
             string toastGroup = "Install1";
@@ -133,7 +133,7 @@ namespace installTask
             ToastNotificationManager.CreateToastNotifier().Show(toast);
         }
 
-        public static void showError(string errorText)
+        public static void ShowError(string errorText)
         {
             string toastTag = "appInstall";
             string toastGroup = "Install1";

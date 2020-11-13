@@ -8,20 +8,20 @@ using Windows.Management.Deployment;
 
 namespace installTask
 {
-    public sealed class install : IBackgroundTask
+    public sealed class Install : IBackgroundTask
     {
         BackgroundTaskDeferral _deferral;
-        string resultText = "Nothing";
-        bool pkgRegistered = false;
-        private static IBackgroundTaskInstance boom;
-        static double installPercentage = 0;
+        string _resultText = "Nothing";
+        bool _pkgRegistered = false;
+        private static IBackgroundTaskInstance _boom;
+        static double _installPercentage = 0;
         /// <summary>
         /// Pretty much identical to showProgressInApp() in MainPage.xaml.cs
         /// </summary>
         /// <param name="taskInstance"></param>
         public async void Run(IBackgroundTaskInstance taskInstance)
         {
-            boom = taskInstance;
+            _boom = taskInstance;
             _deferral = taskInstance.GetDeferral();
             ApplicationTriggerDetails details = (ApplicationTriggerDetails)taskInstance.TriggerDetails;
             string packagePath = "";
@@ -29,7 +29,7 @@ namespace installTask
             packagePath = (string)details.Arguments["packagePath"];
             PackageManager pkgManager = new PackageManager();
             Progress<DeploymentProgress> progressCallback = new Progress<DeploymentProgress>(installProgress);
-            notification.SendUpdatableToastWithProgress(0);
+            Notification.SendUpdatableToastWithProgress(0);
             if ((int)details.Arguments["installType"] == 1)
             {
                 List<Uri> dependencies = new List<Uri>();
@@ -44,12 +44,12 @@ namespace installTask
                 try
                 {
                     var result = await pkgManager.AddPackageAsync(new Uri(packagePath), dependencies, DeploymentOptions.ForceTargetApplicationShutdown).AsTask(progressCallback);
-                    checkIfPackageRegistered(result, resultText);
+                    checkIfPackageRegistered(result, _resultText);
                 }
 
                 catch (Exception e)
                 {
-                    resultText = e.Message;
+                    _resultText = e.Message;
                 }
 
             }
@@ -58,25 +58,25 @@ namespace installTask
                 try
                 {
                     var result = await pkgManager.AddPackageAsync(new Uri(packagePath), null, DeploymentOptions.ForceTargetApplicationShutdown).AsTask(progressCallback);
-                    checkIfPackageRegistered(result, resultText);
+                    checkIfPackageRegistered(result, _resultText);
                 }
 
                 catch (Exception e)
                 {
-                    resultText = e.Message;
+                    _resultText = e.Message;
                 }
 
 
             }
 
 
-            if (pkgRegistered == true)
+            if (_pkgRegistered == true)
             {
-                notification.showInstallationHasCompleted();
+                Notification.ShowInstallationHasCompleted();
             }
             else
             {
-                notification.showError(resultText);
+                Notification.ShowError(_resultText);
             }
 
 
@@ -86,9 +86,9 @@ namespace installTask
 
         private static void installProgress(DeploymentProgress installProgress)
         {
-             installPercentage = installProgress.percentage;
-            boom.Progress = (uint)installPercentage;
-            notification.UpdateProgress(installPercentage);
+             _installPercentage = installProgress.percentage;
+            _boom.Progress = (uint)_installPercentage;
+            Notification.UpdateProgress(_installPercentage);
         }
 
 
@@ -98,7 +98,7 @@ namespace installTask
         {
             if (result.IsRegistered)
             {
-                pkgRegistered = true;
+                _pkgRegistered = true;
             }
             else
             {
