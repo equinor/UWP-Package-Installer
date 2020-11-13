@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "installTask", "installTask\installTask.csproj", "{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstallTask", "installTask\InstallTask.csproj", "{8AD22B09-60CD-4509-92EB-3E0C56B1C0AF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UWPPackageInstaller", "UWPPackageInstaller\UWPPackageInstaller.csproj", "{9DCD1469-A8F6-4037-B50A-D37EBA91E7B8}"
 EndProject
