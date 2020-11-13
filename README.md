@@ -1,24 +1,15 @@
-# UWP-Package-Installer
-An UWP installer for appx/appxbundle packages
+# Echo App Installer
 
-You can download the installer here: https://github.com/colinkiama/UWP-Package-Installer/releases
+An UWP installer for remote packages
 
-Need help or have questions? Contact me at colinkiama@gmail.com
- 
-<img src="/screenshot.gif?raw=true">
+The App installs the packages, displays errors in case something goes wrong.
 
+The intended use of this is to create an alternative app-installer for the HoloLens 2 the built in app installer on Windows 10 and Windows Device Portal (for sideloading apps onto your device).
 
-The App installs the packages with or without their dependencies and displays errors in case something goes wrong.
+Known Issues:
+    - Large files hang when installing.
+    - HoloLens 1 is not supported.
 
-Devices on Windows 10 Creators Update and Later get their install progress in the action center. Devices on older versions of Windows 10 have their install progress inside the installer's app UI and a few notifications in the app.
+Credits:
 
-This is fully capable of replacing the buillt in app installer on Windows 10 and Windows Device Portal (for sideloading apps onto your device).
-
-Feel free to use this code for your own projects too. WARNING: The methods used in the Package Manager class in this app do require you to manually add the following restricted capablities into your package.appxmanifest file: "packageManagement". You can learn more about restricted capablities in UWP apps here (You might need to scroll down a bit): https://docs.microsoft.com/en-us/windows/uwp/packaging/app-capability-declarations
-
-
-Enjoy😁!
-
-## Roadmap:
-- [ ] Install Certificates before packages
-- [ ] Try installing the package without dependencies when app fails to install the first time
+This codebase is forked from @colinkiama's UWP-Package-Installer: <https://github.com/colinkiama/UWP-Package-Installer>.
