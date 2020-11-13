@@ -15,13 +15,13 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="UWPPackageInstaller.App">
-      <uap:VisualElements DisplayName="Package Installer" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="UWP Package Installer" BackgroundColor="transparent">
+      <uap:VisualElements DisplayName="Echo Installer" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="Echo App Installer for HoloLens" BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
         </uap:DefaultTile>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
-        <Extension Category="windows.backgroundTasks" EntryPoint="installTask.install">
+        <Extension Category="windows.backgroundTasks" EntryPoint="InstallTask.Install">
           <BackgroundTasks>
             <Task Type="pushNotification" />
           </BackgroundTasks>
@@ -53,6 +53,11 @@
               <uap:FileType>.msix</uap:FileType>
             </uap:SupportedFileTypes>
           </uap:FileTypeAssociation>
+        </uap:Extension>
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="echoinstaller" DesiredView="useMore">
+            <uap:DisplayName>Echo Installer</uap:DisplayName>
+          </uap:Protocol>
         </uap:Extension>
       </Extensions>
     </Application>

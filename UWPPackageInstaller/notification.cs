@@ -73,24 +73,24 @@ namespace UWPPackageInstaller
                     BindingGeneric = new ToastBindingGeneric()
                     {
                         Children =
-                {
-                    new AdaptiveText()
-                    {
-                        Text = "Install Status"
-                    },
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = "Install Status"
+                            },
 
-                    new AdaptiveText()
-                    {
-                        Text=$"Installation has failed"
-                    },
+                            new AdaptiveText()
+                            {
+                                Text=$"Installation has failed"
+                            },
 
-                    new AdaptiveText()
-                    {
-                        Text=$"{errorText}"
-                    }
+                            new AdaptiveText()
+                            {
+                                Text=$"{errorText}"
+                            }
 
 
-                }
+                        }
                     }
                 }
             };

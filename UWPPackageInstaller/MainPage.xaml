@@ -42,6 +42,15 @@
                        Text="0%"
                        Margin="12,10"
                        Visibility="Collapsed"/>
+            <Button Name="downloadFileButton" 
+                    Content="Download File"
+                    Margin="12,10"
+                    Click="DownloadFileButton_Click"/>
+
+            <ProgressBar Name="downloadProgressBar" 
+                         Height="5"
+                         Margin="12,0"
+                         Visibility="Collapsed"/>
             <Button Name="loadFileButton" 
                     Content="Load File"
                     Margin="12,10"

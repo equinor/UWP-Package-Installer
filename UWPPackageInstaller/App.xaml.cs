@@ -132,6 +132,47 @@ namespace UWPPackageInstaller
             Window.Current.Activate();
         }
 
+        /// <summary>
+        /// Whenever a protocol activates this app
+        /// </summary>
+        /// <param name="args"></param>
+        protected override void OnActivated(IActivatedEventArgs args)
+        {
+            if (args.Kind == ActivationKind.Protocol)
+            {
+                ProtocolActivatedEventArgs eventArgs = args as ProtocolActivatedEventArgs;
+
+                if (eventArgs != null)
+                {
+                    
+                    Frame rootFrame = Window.Current.Content as Frame;
+
+                    // Do not repeat app initialization when the Window already has content,
+                    // just ensure that the window is active
+                    if (rootFrame == null)
+                    {
+                        // Create a Frame to act as the navigation context and navigate to the first page
+                        rootFrame = new Frame();
+
+                        rootFrame.NavigationFailed += OnNavigationFailed;
+
+
+
+                        // Place the frame in the current Window
+                        Window.Current.Content = rootFrame;
+                    }
+
+                    //Retrieves the appx/appxbundle and passes it into the MainPage.
+                    //Where it will be dealt with in the OnNavigatedTo method;
+                    //StorageFile package = (StorageFile)e.Files[0];
+                    rootFrame.Navigate(typeof(MainPage), eventArgs.Uri);
+
+                    // Ensure the current window is active
+                    Window.Current.Activate();
+                }
+            }
+        }
+
     }
 
 }

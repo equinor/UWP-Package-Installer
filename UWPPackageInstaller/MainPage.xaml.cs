@@ -1,21 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.Background;
-using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using Windows.Management.Deployment;
+using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
@@ -27,18 +21,35 @@ namespace UWPPackageInstaller
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        StorageFile _packageInContext;
+        IStorageFile _packageInContext;
         List<Uri> _dependencies = new List<Uri>();
         //ValueSet cannot contain values of the URI class which is why there is another list below.
         //This is required to update the progress in a notification using a background task.
         List<string> _dependenciesAsString = new List<string>();
 
-        bool _pkgRegistered = false;
+        readonly PackageManager _pkgManager = new PackageManager();
+
+        bool _pkgRegistered;
         public MainPage()
         {
             this.InitializeComponent();
-
         }
+
+
+        private Uri _fileSasUrl;
+
+        public bool IsUrlValidForEcho(Uri fileUri)
+        {
+            // WARNING: This is a potential security issue: if anyone uses this URI they will be able to install apps on our HoloLenses.
+            var hostAllowList = new List<string>()
+            {
+                @"stemrappsdev.blob.core.windows.net",
+                @"stemrappsprod.blob.core.windows.net"
+            };
+
+            return (hostAllowList.Contains(fileUri.Host) && fileUri.Scheme == "https");
+        }
+
 
         /// <summary>
         /// Attempts to get appx/appxbundle from the OnFileActivated event in App.xaml.cs
@@ -50,9 +61,31 @@ namespace UWPPackageInstaller
         {
 
             base.OnNavigatedTo(e);
+
+            if (e.Parameter is Uri uriParam)
+            {
+                var inputSasUrl = new Uri(uriParam.OriginalString.Remove(0, "echoinstaller://".Length));
+
+                if (!IsUrlValidForEcho(inputSasUrl))
+                {
+                    permissionTextBlock.Text = "APP URL IS INVALID. Cannot download this app.";
+                    return;
+                }
+
+                _fileSasUrl = inputSasUrl;
+
+                permissionTextBlock.Text = _fileSasUrl.ToString();
+                installProgressBar.Visibility = Visibility.Collapsed;
+                installValueTextBlock.Visibility = Visibility.Collapsed;
+                installButton.Visibility = Visibility.Visible;
+                cancelButton.Content = "Exit";
+                packageNameTextBlock.Text = "No package Selected";
+                return;
+            }
+
             try
             {
-                StorageFile package = (StorageFile)e.Parameter;
+                IStorageFile package = (IStorageFile)e.Parameter;
                 _packageInContext = package;
                 updateUiForPackageInstallation();
             }
@@ -71,7 +104,7 @@ namespace UWPPackageInstaller
 
         private void updateUiForPackageInstallation()
         {
-            packageNameTextBlock.Text = _packageInContext.DisplayName;
+            packageNameTextBlock.Text = _packageInContext.Name;
             loadFileButton.Content = "Load a different file";
 
         }
@@ -105,10 +138,10 @@ namespace UWPPackageInstaller
 
             //Modern Test:
             //showProgressInNotification();
-
+            
             //Legacy Test:
-            //showProgressInApp();
-
+            showProgressInApp(_fileSasUrl);
+            return;
             //Normal Code:
             //If the device is on the creators update or later, install progress is shown in the action center and App UI
             //Otherwise, all progress is shown in the App's UI.
@@ -120,27 +153,22 @@ namespace UWPPackageInstaller
             {
                 showProgressInApp();
             }
-
-
-
-
         }
 
-
-        private async void showProgressInApp()
+        private async void showProgressInApp(Uri fileToDownload)
         {
             installProgressBar.Visibility = Visibility.Visible;
             installValueTextBlock.Visibility = Visibility.Visible;
-            PackageManager pkgManager = new PackageManager();
+
             Progress<DeploymentProgress> progressCallback = new Progress<DeploymentProgress>(installProgress);
             string resultText = "Nothing";
-
-            Notification.ShowInstallationHasStarted(_packageInContext.Name);
+            
+            Notification.ShowInstallationHasStarted("INSERT APPNAME HERE");
             if (_dependencies != null && _dependencies.Count > 0)
             {
                 try
                 {
-                    var result = await pkgManager.AddPackageAsync(new Uri(_packageInContext.Path), _dependencies, DeploymentOptions.ForceTargetApplicationShutdown).AsTask(progressCallback);
+                    var result = await _pkgManager.AddPackageAsync(fileToDownload, _dependencies, DeploymentOptions.ForceApplicationShutdown | DeploymentOptions.ForceUpdateFromAnyVersion).AsTask(progressCallback);
                     checkIfPackageRegistered(result, resultText);
 
                 }
@@ -155,12 +183,68 @@ namespace UWPPackageInstaller
                 try
                 {
 
-                    var result = await pkgManager.AddPackageAsync(new Uri(_packageInContext.Path), null, DeploymentOptions.ForceTargetApplicationShutdown).AsTask(progressCallback);
+                    var result = await _pkgManager.AddPackageAsync(fileToDownload, null, DeploymentOptions.ForceApplicationShutdown | DeploymentOptions.ForceUpdateFromAnyVersion).AsTask(progressCallback);
                     checkIfPackageRegistered(result, resultText);
                 }
 
                 catch (Exception e)
                 {
+                    Debug.WriteLine(e);
+                    Debug.WriteLine(e.StackTrace);
+                    resultText = e.Message;
+                }
+            }
+
+            cancelButton.Content = "Exit";
+            cancelButton.Visibility = Visibility.Visible;
+            if (_pkgRegistered == true)
+            {
+                permissionTextBlock.Text = "Completed";
+                Notification.ShowInstallationHasCompleted("Insert Filename HERE");
+            }
+            else
+            {
+                resultTextBlock.Text = resultText;
+                Notification.SendError(resultText);
+            }
+        }
+
+        private async void showProgressInApp()
+        {
+            installProgressBar.Visibility = Visibility.Visible;
+            installValueTextBlock.Visibility = Visibility.Visible;
+
+            Progress<DeploymentProgress> progressCallback = new Progress<DeploymentProgress>(installProgress);
+            string resultText = "Nothing";
+
+            Notification.ShowInstallationHasStarted(_packageInContext.Name);
+            if (_dependencies != null && _dependencies.Count > 0)
+            {
+                try
+                {
+                    var result = await _pkgManager.AddPackageAsync(new Uri(_packageInContext.Path), _dependencies, DeploymentOptions.ForceApplicationShutdown | DeploymentOptions.ForceUpdateFromAnyVersion).AsTask(progressCallback);
+                    checkIfPackageRegistered(result, resultText);
+
+                }
+                catch (Exception e)
+                {
+                    resultText = e.Message;
+                }
+
+            }
+            else
+            {
+                try
+                {
+
+                    var result = await _pkgManager.AddPackageAsync(new Uri(_packageInContext.Path), null, DeploymentOptions.ForceApplicationShutdown | DeploymentOptions.ForceUpdateFromAnyVersion).AsTask(progressCallback);
+                    checkIfPackageRegistered(result, resultText);
+                }
+
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e);
+                    Debug.WriteLine(e.StackTrace);
                     resultText = e.Message;
                 }
 
@@ -242,8 +326,8 @@ namespace UWPPackageInstaller
             await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
 
-            installProgressBar.Value = args.Progress;
-            installValueTextBlock.Text = $"{args.Progress}%";
+                installProgressBar.Value = args.Progress;
+                installValueTextBlock.Text = $"{args.Progress}%";
             });
         }
 
@@ -343,7 +427,7 @@ namespace UWPPackageInstaller
                 permissionTextBlock.Text = "Do you want to install this package?";
                 installButton.Visibility = Visibility.Visible;
                 cancelButton.Content = "Cancel";
-                packageNameTextBlock.Text = _packageInContext.DisplayName;
+                packageNameTextBlock.Text = _packageInContext.Name;
                 loadFileButton.Content = "Load a different file";
             }
         }
@@ -380,6 +464,64 @@ namespace UWPPackageInstaller
 
                 loadDependenciesButton.Content = "Load different dependencies";
             }
+        }
+
+        private async void DownloadFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                downloadProgressBar.Visibility = Visibility.Visible;
+
+                string filename = "temp.msix";
+
+                Uri source = _fileSasUrl;
+                var tempFolder = Windows.Storage.ApplicationData.Current.TemporaryFolder;
+                StorageFile destinationFile = await tempFolder.CreateFileAsync(
+                    filename, CreationCollisionOption.ReplaceExisting);
+
+                BackgroundDownloader downloader = new BackgroundDownloader();
+                DownloadOperation download = downloader.CreateDownload(source, destinationFile);
+
+                // Attach progress and completion handlers.
+                HandleDownloadAsync(download, true);
+            }
+            catch
+            {
+                downloadProgressBar.ShowError = true;
+            }
+            finally
+            {
+                //downloadProgressBar.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private async void HandleDownloadAsync(DownloadOperation download, bool cool)
+        {
+
+            var progress = new Progress<DownloadOperation>(DownloadProgressed);
+
+            var res = await download.StartAsync().AsTask(progress);
+
+
+            Frame rootFrame = Window.Current.Content as Frame;
+
+
+            rootFrame.Navigate(typeof(MainPage), res.ResultFile);
+            //downloadProgressBar.Visibility = Visibility.Collapsed;
+        }
+
+        private void DownloadProgressed(DownloadOperation ongoingDownloadOperation)
+        {
+            BackgroundDownloadProgress currentProgress = ongoingDownloadOperation.Progress;
+
+            double progress = 1;
+            if (currentProgress.TotalBytesToReceive > 0)
+            {
+                progress = currentProgress.BytesReceived / currentProgress.TotalBytesToReceive;
+            }
+
+            downloadProgressBar.Maximum = 1;
+            downloadProgressBar.Value = progress;
         }
     }
 }
