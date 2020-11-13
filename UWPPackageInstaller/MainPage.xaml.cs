@@ -6,11 +6,13 @@ using Windows.Foundation;
 using Windows.Management.Deployment;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
 namespace UWPPackageInstaller
 {
-    public sealed partial class MainPage
+    // ReSharper disable once RedundantExtendsListEntry
+    public sealed partial class MainPage : Page
     {
         readonly PackageManager _packageManager = new PackageManager();
 
@@ -74,7 +76,7 @@ namespace UWPPackageInstaller
             InstallProgressBar.Visibility = Visibility.Visible;
             InstallValueTextBlock.Visibility = Visibility.Visible;
 
-            Progress<DeploymentProgress> progressCallback = new Progress<DeploymentProgress>(installProgress);
+            IProgress<DeploymentProgress> progressCallback = new Progress<DeploymentProgress>(installProgress);
             string resultText = "Nothing";
 
             Notification.ShowInstallationHasStarted(packageName);
@@ -82,9 +84,19 @@ namespace UWPPackageInstaller
 
             try
             {
-                var result = await _packageManager.AddPackageAsync(fileToDownload, null,
-                        DeploymentOptions.ForceApplicationShutdown | DeploymentOptions.ForceUpdateFromAnyVersion)
-                    .AsTask(progressCallback);
+                var addPackageOperation = _packageManager.AddPackageAsync(fileToDownload, null,
+                    DeploymentOptions.ForceApplicationShutdown | DeploymentOptions.ForceUpdateFromAnyVersion);
+                // There is no progress callback while downloading (that I have found)
+                PermissionTextBlock.Text = "Downloading files... Download progress is unknown.";
+
+                // Subscribe to the progress callback.
+                addPackageOperation.Progress += (_, progressInfo) =>
+                {
+                    progressCallback.Report(progressInfo);
+                };
+                
+                var result = await addPackageOperation;
+
                 ensureIsAppRegistered(result);
             }
 
@@ -129,11 +141,20 @@ namespace UWPPackageInstaller
         /// <param name="installProgress"></param>
         private void installProgress(DeploymentProgress installProgress)
         {
-            double installPercentage = installProgress.percentage;
-            PermissionTextBlock.Text = "Installing...";
-            InstallProgressBar.Value = installPercentage;
-            var displayText = string.Format($"{installPercentage}%");
-            InstallValueTextBlock.Text = displayText;
+            switch (installProgress.state){
+                case DeploymentProgressState.Queued:
+                    PermissionTextBlock.Text = "Queued...";
+                    break;
+                case DeploymentProgressState.Processing:
+                    double installPercentage = installProgress.percentage;
+                    PermissionTextBlock.Text = "Installing...";
+                    InstallProgressBar.Value = installPercentage;
+                    var displayText = string.Format($"{installPercentage}%");
+                    InstallValueTextBlock.Text = displayText;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }
