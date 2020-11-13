@@ -13,7 +13,8 @@ namespace UWPPackageInstaller
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
     [UsedImplicitly]
-    sealed partial class App
+    // ReSharper disable once RedundantExtendsListEntry
+    sealed partial class App : Application
     {
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
