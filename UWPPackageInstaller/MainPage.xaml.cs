@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Management.Deployment;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Navigation;
 
 namespace UWPPackageInstaller
@@ -25,9 +27,12 @@ namespace UWPPackageInstaller
 
         private (Uri, string) _appDownloadInfo;
 
-       protected override void OnNavigatedTo(NavigationEventArgs e)
+        protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
+            var sysInfoDisplayText = GetSystemInformationText();
+            AboutApp.Text = sysInfoDisplayText;
 
             if (e.Parameter is Uri uriParam)
             {
@@ -52,9 +57,40 @@ namespace UWPPackageInstaller
             else
             {
                 // TODO: Actually create a link here, or open it directly
-                PermissionTextBlock.Text = "Open echolens.equinor.com to install apps.";
+                var hyperlink = new Hyperlink()
+                {
+                    NavigateUri = new Uri("https://echolens.equinor.com"),
+                };
+                hyperlink.Inlines.Add(new Run() { Text = "https://echolens.equinor.com" });
+
+                PermissionTextBlock.Inlines.Clear();
+                var firstLine = new Run { Text = "Open " };
+                PermissionTextBlock.Inlines.Add(firstLine);
+                PermissionTextBlock.Inlines.Add(hyperlink);
+                var lastLine = new Run() { Text = " to install apps." };
+                PermissionTextBlock.Inlines.Add(lastLine);
+
                 InstallButton.Visibility = Visibility.Collapsed;
             }
+        }
+
+
+        private string GetSystemInformationText()
+        {
+            var appName = SystemInformation.ApplicationName;
+            var appVersion = SystemInformation.ApplicationVersion;
+            var culture = SystemInformation.Culture;
+            var os = SystemInformation.OperatingSystem;
+            var processorArchitecture = SystemInformation.OperatingSystemArchitecture;
+            var osVersion = SystemInformation.OperatingSystemVersion;
+            var deviceFamily = SystemInformation.DeviceFamily;
+            var deviceModel = SystemInformation.DeviceModel;
+            var deviceManufacturer = SystemInformation.DeviceManufacturer;
+
+            var text =
+                $"{appName}:{appVersion.ToFormattedString()}\n{os} {osVersion} on {processorArchitecture}\n{deviceFamily}: {deviceModel} {deviceManufacturer}\n{culture}";
+
+            return text;
         }
 
         private void cancelButton_Click(object sender, RoutedEventArgs e)
@@ -94,7 +130,7 @@ namespace UWPPackageInstaller
                 {
                     progressCallback.Report(progressInfo);
                 };
-                
+
                 var result = await addPackageOperation;
 
                 ensureIsAppRegistered(result);
@@ -128,9 +164,9 @@ namespace UWPPackageInstaller
         /// <param name="result"></param>
         private static void ensureIsAppRegistered(DeploymentResult result)
         {
-            if (result.IsRegistered) 
+            if (result.IsRegistered)
                 return;
-            
+
             Debug.WriteLine(result.ErrorText);
             throw result.ExtendedErrorCode;
         }
@@ -141,7 +177,8 @@ namespace UWPPackageInstaller
         /// <param name="installProgress"></param>
         private void installProgress(DeploymentProgress installProgress)
         {
-            switch (installProgress.state){
+            switch (installProgress.state)
+            {
                 case DeploymentProgressState.Queued:
                     PermissionTextBlock.Text = "Queued...";
                     break;

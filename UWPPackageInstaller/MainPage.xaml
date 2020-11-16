@@ -46,18 +46,36 @@
                        TextWrapping="Wrap" 
                        Margin="12,0"/>
         </StackPanel>
-        <StackPanel Grid.Row="2"
-                    HorizontalAlignment="Right"
-                    Orientation="Horizontal"
-                    Margin="16">
-            <Button Style="{ThemeResource TextBlockButtonStyle}" 
+        <Grid Grid.Row="2"
+              
+              Margin="16"
+        >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                       TextWrapping="WrapWholeWords"
+                       Name="AboutApp"
+                       Grid.Column="0"
+                       FontSize="10"
+                       VerticalAlignment="Bottom"
+                       >
+                Echo Installer v1.0.0.1 running on ARM64, HoloLens OS Version 10.
+            </TextBlock>
+            <StackPanel HorizontalAlignment="Right"
+                        Grid.Column="1"
+                        Orientation="Horizontal"
+                        Margin="16"
+                        >
+                <Button Style="{ThemeResource TextBlockButtonStyle}" 
                     Content="Cancel"
                     FontSize="40"
                     Padding="20 0"
                     
                     Name="CancelButton"
                     Click="cancelButton_Click"/>
-            <Button Style="{ThemeResource TextBlockButtonStyle}" 
+                <Button Style="{ThemeResource TextBlockButtonStyle}" 
                     Content="Install"
                     FontWeight="SemiBold"
                     FontSize="40"
@@ -65,6 +83,7 @@
                     Name="InstallButton"
                     Click="installButton_Click"
                     Margin="16,0,0,0"/>
-        </StackPanel>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Page>
