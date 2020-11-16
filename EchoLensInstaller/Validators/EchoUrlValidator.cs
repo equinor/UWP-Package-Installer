@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace UWPPackageInstaller
+namespace EchoLensInstaller
 {
     public sealed class EchoUrlValidator
     {

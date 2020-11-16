@@ -11,7 +11,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Navigation;
 
-namespace UWPPackageInstaller
+namespace EchoLensInstaller
 {
     // ReSharper disable once RedundantExtendsListEntry
     public sealed partial class MainPage : Page
