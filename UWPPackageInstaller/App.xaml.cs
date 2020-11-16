@@ -22,8 +22,8 @@ namespace UWPPackageInstaller
         /// </summary>
         public App()
         {
-            this.InitializeComponent();
-            this.Suspending += OnSuspending;
+            InitializeComponent();
+            Suspending += OnSuspending;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace UWPPackageInstaller
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            Frame rootFrame = Window.Current.Content as Frame;
+            var rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
@@ -56,12 +56,10 @@ namespace UWPPackageInstaller
             if (e.PrelaunchActivated == false)
             {
                 if (rootFrame.Content == null)
-                {
                     // When the navigation stack isn't restored navigate to the first page,
                     // configuring the new page by passing required information as a navigation
                     // parameter
                     rootFrame.Navigate(typeof(MainPage), e.Arguments);
-                }
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
@@ -72,7 +70,7 @@ namespace UWPPackageInstaller
         /// </summary>
         /// <param name="sender">The Frame which failed navigation</param>
         /// <param name="e">Details about the navigation failure</param>
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
+        private void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
         {
             throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
         }
@@ -99,7 +97,7 @@ namespace UWPPackageInstaller
         protected override void OnFileActivated(FileActivatedEventArgs e)
         {
             base.OnFileActivated(e);
-            Frame rootFrame = Window.Current.Content as Frame;
+            var rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
@@ -111,15 +109,14 @@ namespace UWPPackageInstaller
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
 
-
                 // Place the frame in the current Window
                 Window.Current.Content = rootFrame;
             }
 
             //Retrieves the appx/appxbundle and passes it into the MainPage.
             //Where it will be dealt with in the OnNavigatedTo method;
-            StorageFile package = (StorageFile)e.Files[0];
-            rootFrame.Navigate(typeof(MainPage),package);
+            var package = (StorageFile) e.Files[0];
+            rootFrame.Navigate(typeof(MainPage), package);
 
             // Ensure the current window is active
             Window.Current.Activate();
@@ -132,10 +129,8 @@ namespace UWPPackageInstaller
         protected override void OnActivated(IActivatedEventArgs args)
         {
             if (args.Kind == ActivationKind.Protocol)
-            {
                 if (args is ProtocolActivatedEventArgs eventArgs)
                 {
-                    
                     var rootFrame = Window.Current.Content as Frame;
 
                     // Do not repeat app initialization when the Window already has content,
@@ -146,7 +141,6 @@ namespace UWPPackageInstaller
                         rootFrame = new Frame();
 
                         rootFrame.NavigationFailed += OnNavigationFailed;
-
 
 
                         // Place the frame in the current Window
@@ -161,10 +155,6 @@ namespace UWPPackageInstaller
                     // Ensure the current window is active
                     Window.Current.Activate();
                 }
-            }
         }
-
     }
-
 }
-
