@@ -1,5 +1,9 @@
 # Echo App Installer
 
+Public Repository.
+
+Internal Runbook: <https://github.com/equinor/Echo/docs/emr-echolens-apps-installer.md>
+
 ## What is it?
 
 An UWP installer for remote packages. 
