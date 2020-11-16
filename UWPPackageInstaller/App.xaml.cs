@@ -89,39 +89,6 @@ namespace UWPPackageInstaller
             deferral.Complete();
         }
 
-
-        /// <summary>
-        /// Whenever an appx or appxbundle file is opened by this app, this method is called
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnFileActivated(FileActivatedEventArgs e)
-        {
-            base.OnFileActivated(e);
-            var rootFrame = Window.Current.Content as Frame;
-
-            // Do not repeat app initialization when the Window already has content,
-            // just ensure that the window is active
-            if (rootFrame == null)
-            {
-                // Create a Frame to act as the navigation context and navigate to the first page
-                rootFrame = new Frame();
-
-                rootFrame.NavigationFailed += OnNavigationFailed;
-
-
-                // Place the frame in the current Window
-                Window.Current.Content = rootFrame;
-            }
-
-            //Retrieves the appx/appxbundle and passes it into the MainPage.
-            //Where it will be dealt with in the OnNavigatedTo method;
-            var package = (StorageFile) e.Files[0];
-            rootFrame.Navigate(typeof(MainPage), package);
-
-            // Ensure the current window is active
-            Window.Current.Activate();
-        }
-
         /// <summary>
         /// Whenever a protocol activates this app
         /// </summary>
@@ -146,10 +113,8 @@ namespace UWPPackageInstaller
                         // Place the frame in the current Window
                         Window.Current.Content = rootFrame;
                     }
-
-                    //Retrieves the appx/appxbundle and passes it into the MainPage.
-                    //Where it will be dealt with in the OnNavigatedTo method;
-                    //StorageFile package = (StorageFile)e.Files[0];
+                    
+                    
                     rootFrame.Navigate(typeof(MainPage), eventArgs.Uri);
 
                     // Ensure the current window is active
