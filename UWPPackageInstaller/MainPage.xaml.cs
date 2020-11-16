@@ -16,7 +16,9 @@ namespace UWPPackageInstaller
     // ReSharper disable once RedundantExtendsListEntry
     public sealed partial class MainPage : Page
     {
-        readonly PackageManager _packageManager = new PackageManager();
+        private const string AppUri = "echoinstaller://";
+
+        private readonly PackageManager _packageManager = new PackageManager();
 
         public MainPage()
         {
@@ -31,16 +33,17 @@ namespace UWPPackageInstaller
         {
             base.OnNavigatedTo(e);
 
-            var sysInfoDisplayText = GetSystemInformationText();
+            var sysInfoDisplayText = getSystemInformationText();
             AboutApp.Text = sysInfoDisplayText;
 
             if (e.Parameter is Uri uriParam)
             {
-                var inputSasUrl = new Uri(uriParam.OriginalString.Remove(0, "echoinstaller://".Length));
+                var inputSasUrl = new Uri(uriParam.OriginalString.Remove(0, AppUri.Length));
 
                 if (!EchoUrlValidator.IsUrlValidForEcho(inputSasUrl))
                 {
-                    PermissionTextBlock.Text = "Input url is invalid. Cannot install this app.";
+                    PermissionTextBlock.Text = "Input url is invalid. Cannot install this app.\nWas: " + inputSasUrl;
+                    _appDownloadInfo = (null, null);
                     return;
                 }
 
@@ -56,10 +59,9 @@ namespace UWPPackageInstaller
             }
             else
             {
-                // TODO: Actually create a link here, or open it directly
                 var hyperlink = new Hyperlink()
                 {
-                    NavigateUri = new Uri("https://echolens.equinor.com"),
+                    NavigateUri = new Uri("https://echolens.equinor.com")
                 };
                 hyperlink.Inlines.Add(new Run() { Text = "https://echolens.equinor.com" });
 
@@ -75,7 +77,7 @@ namespace UWPPackageInstaller
         }
 
 
-        private string GetSystemInformationText()
+        private static string getSystemInformationText()
         {
             var appName = SystemInformation.ApplicationName;
             var appVersion = SystemInformation.ApplicationVersion;
@@ -113,7 +115,7 @@ namespace UWPPackageInstaller
             InstallValueTextBlock.Visibility = Visibility.Visible;
 
             IProgress<DeploymentProgress> progressCallback = new Progress<DeploymentProgress>(installProgress);
-            string resultText = "Nothing";
+            var resultText = "Nothing";
 
             Notification.ShowInstallationHasStarted(packageName);
             var pkgRegistered = true;
@@ -123,13 +125,10 @@ namespace UWPPackageInstaller
                 var addPackageOperation = _packageManager.AddPackageAsync(fileToDownload, null,
                     DeploymentOptions.ForceApplicationShutdown | DeploymentOptions.ForceUpdateFromAnyVersion);
                 // There is no progress callback while downloading (that I have found)
-                PermissionTextBlock.Text = "Downloading files... Download progress is unknown.";
+                PermissionTextBlock.Text = "Downloading 📥\nInstallation will continue when downloading is complete.";
 
                 // Subscribe to the progress callback.
-                addPackageOperation.Progress += (_, progressInfo) =>
-                {
-                    progressCallback.Report(progressInfo);
-                };
+                addPackageOperation.Progress += (_, progressInfo) => { progressCallback.Report(progressInfo); };
 
                 var result = await addPackageOperation;
 
@@ -148,12 +147,13 @@ namespace UWPPackageInstaller
             CancelButton.Visibility = Visibility.Visible;
             if (pkgRegistered)
             {
-                PermissionTextBlock.Text = "Completed";
+                PermissionTextBlock.Text = "Installation Complete ✔";
+                ResultTextBlock.Text = "You can now close this window.";
                 Notification.ShowInstallationHasCompleted(packageName);
             }
             else
             {
-                ResultTextBlock.Text = resultText;
+                ResultTextBlock.Text = resultText + " ❌";
                 Notification.SendError(resultText);
             }
         }
@@ -184,7 +184,7 @@ namespace UWPPackageInstaller
                     break;
                 case DeploymentProgressState.Processing:
                     double installPercentage = installProgress.percentage;
-                    PermissionTextBlock.Text = "Installing...";
+                    PermissionTextBlock.Text = "Installing 🏗";
                     InstallProgressBar.Value = installPercentage;
                     var displayText = string.Format($"{installPercentage}%");
                     InstallValueTextBlock.Text = displayText;
