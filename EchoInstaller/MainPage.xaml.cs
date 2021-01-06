@@ -55,7 +55,7 @@ namespace EchoInstaller
                 _appDownloadInfo = (inputSasUrl, filename);
                 PermissionTextBlock.Text = $"Install {filename}?";
                 InstallValueTextBlock.Visibility = Visibility.Visible;
-                InstallValueTextBlock.Text = "Known Issue: For some users the Installation Progress stops, but the app continues installing in the background. Check in the apps menu if the app is installed successfully";
+                InstallValueTextBlock.Text = $"Note: There is a known issue with the Echo Installer. For some users the Installation Progress seemingly stops, but the app continues installing in the background. Check in the Start menu if the app is installed successfully after a while.\n\nPress Install to start installing {filename}.";
                 InstallProgressBar.Visibility = Visibility.Collapsed;
                 InstallButton.Visibility = Visibility.Visible;
                 CancelButton.Content = "Exit";
@@ -180,8 +180,8 @@ namespace EchoInstaller
 
             catch (Exception e)
             {
-                Debug.WriteLine(e);
-                Debug.WriteLine(e.StackTrace);
+                Trace.WriteLine(e);
+                Trace.WriteLine(e.StackTrace);
                 resultText = e.Message;
                 pkgRegistered = false;
             }
@@ -192,7 +192,11 @@ namespace EchoInstaller
             if (pkgRegistered)
             {
                 PermissionTextBlock.Text = "Installation Complete ✔";
-                ResultTextBlock.Text = "You can now close this window by clicking X in the top right corner.";
+                ResultTextBlock.Text = @"App installed successfully!
+
+The Installed App can be found in the Start menu under ""All Apps"".
+
+You can now close this window by clicking X in the top right corner.";
                 Notification.ShowInstallationHasCompleted(packageName);
             }
             else

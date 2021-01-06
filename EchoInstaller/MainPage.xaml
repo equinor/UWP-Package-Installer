@@ -40,7 +40,9 @@
             <TextBlock Name="InstallValueTextBlock" 
                        Text="0%"
                        Margin="12,10"
-                       Visibility="Collapsed"/>
+                       Visibility="Collapsed"
+                       TextWrapping="Wrap"
+                       />
 
             <TextBlock Name="ResultTextBlock"
                        TextWrapping="Wrap" 
@@ -58,7 +60,7 @@
                        TextWrapping="WrapWholeWords"
                        Name="AboutApp"
                        Grid.Column="0"
-                       FontSize="10"
+                       FontSize="15"
                        VerticalAlignment="Bottom"
                        >
                 Echo Installer v1.0.0.1 running on ARM64, HoloLens OS Version 10.
