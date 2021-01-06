@@ -4,12 +4,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EchoLensInstaller")]
+[assembly: AssemblyTitle("Echo Installer")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Equinor ASA")]
-[assembly: AssemblyProduct("EchoLensInstaller")]
-[assembly: AssemblyCopyright("MIT License")]
+[assembly: AssemblyProduct("EchoInstaller")]
+[assembly: AssemblyCopyright("Equinor ASA 2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

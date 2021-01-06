@@ -16,6 +16,14 @@ The intended use of this is to create an alternative app-installer for the HoloL
     
 HoloLens 1 is not supported. 
 
+# Publishing
+
+The app is published as a LOB app to the Equinor App Store.
+
+To publish you need access to the App Store.
+
+Publising should currently be done with Visual Studio "Publish" dialogue, and manually uploaded to <https://partner.microsoft.com> Equinor ASA organization.
+
 ## Credits
 
 This codebase is forked from @colinkiama's UWP-Package-Installer: <https://github.com/colinkiama/UWP-Package-Installer>.

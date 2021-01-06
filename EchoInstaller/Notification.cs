@@ -1,7 +1,7 @@
 ﻿using Windows.UI.Notifications;
 using Microsoft.Toolkit.Uwp.Notifications;
 
-namespace EchoLensInstaller
+namespace EchoInstaller
 {
     public class Notification
     {

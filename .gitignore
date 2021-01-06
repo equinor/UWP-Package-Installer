@@ -13,13 +13,18 @@
 [Ll]og/
 
 # Ignore AppPackages
-EchoLensInstaller/AppPackages/*
+EchoInstaller/AppPackages*
 
 # Unignore Publish script
-!/EchoLensInstaller/AppPackages/publish.ps1
+!/EchoInstaller/AppPackages/publish.ps1
+
+Package.StoreAssociation.xml
 
 BundleArtifacts/
 *.pfx
 
-# Visual Studio 2015 cache/options directory
+# Visual Studio cache/options directory
 .vs/
+
+# Rider User Configuration Files
+.idea/

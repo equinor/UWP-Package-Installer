@@ -1,13 +1,12 @@
 ﻿using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
 
-namespace EchoLensInstaller
+namespace EchoInstaller
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -84,7 +83,10 @@ namespace EchoLensInstaller
         /// <param name="e">Details about the suspend request.</param>
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
+
             var deferral = e.SuspendingOperation.GetDeferral();
+            
+            
             //TODO: Save application state and stop any background activity
             deferral.Complete();
         }
@@ -96,6 +98,7 @@ namespace EchoLensInstaller
         protected override void OnActivated(IActivatedEventArgs args)
         {
             if (args.Kind == ActivationKind.Protocol)
+            {
                 if (args is ProtocolActivatedEventArgs eventArgs)
                 {
                     var rootFrame = Window.Current.Content as Frame;
@@ -120,6 +123,7 @@ namespace EchoLensInstaller
                     // Ensure the current window is active
                     Window.Current.Activate();
                 }
+            }
         }
     }
 }

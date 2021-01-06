@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.Toolkit.Uwp.Helpers;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.ExtendedExecution;
 using Windows.Foundation;
 using Windows.Management.Deployment;
 using Windows.UI.ViewManagement;
@@ -10,8 +11,10 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Documents;
 using Windows.UI.Xaml.Navigation;
+using EchoInstaller.Validators;
+using Microsoft.Toolkit.Uwp.Helpers;
 
-namespace EchoLensInstaller
+namespace EchoInstaller
 {
     // ReSharper disable once RedundantExtendsListEntry
     public sealed partial class MainPage : Page
@@ -42,7 +45,7 @@ namespace EchoLensInstaller
 
                 if (!EchoUrlValidator.IsUrlValidForEcho(inputSasUrl))
                 {
-                    PermissionTextBlock.Text = "Input url is invalid. Cannot install this app.\nWas: " + inputSasUrl;
+                    PermissionTextBlock.Text = "Input url is invalid. Cannot install this app.\nUrl is: " + inputSasUrl;
                     _appDownloadInfo = (null, null);
                     return;
                 }
@@ -51,14 +54,17 @@ namespace EchoLensInstaller
 
                 _appDownloadInfo = (inputSasUrl, filename);
                 PermissionTextBlock.Text = $"Install {filename}?";
+                InstallValueTextBlock.Visibility = Visibility.Visible;
+                InstallValueTextBlock.Text = "Known Issue: For some users the Installation Progress stops, but the app continues installing in the background. Check in the apps menu if the app is installed successfully";
                 InstallProgressBar.Visibility = Visibility.Collapsed;
-                InstallValueTextBlock.Visibility = Visibility.Collapsed;
                 InstallButton.Visibility = Visibility.Visible;
                 CancelButton.Content = "Exit";
                 PackageNameTextBlock.Text = filename;
             }
             else
             {
+                // If app is not started with an URI we just redirect to the website in the browser.
+                // We could consider embedding a webview here instead.
                 var hyperlink = new Hyperlink()
                 {
                     NavigateUri = new Uri("https://echolens.equinor.com")
@@ -69,7 +75,7 @@ namespace EchoLensInstaller
                 var firstLine = new Run { Text = "Open " };
                 PermissionTextBlock.Inlines.Add(firstLine);
                 PermissionTextBlock.Inlines.Add(hyperlink);
-                var lastLine = new Run() { Text = " to install apps." };
+                var lastLine = new Run() { Text = " to browse and install available apps." };
                 PermissionTextBlock.Inlines.Add(lastLine);
 
                 InstallButton.Visibility = Visibility.Collapsed;
@@ -100,38 +106,75 @@ namespace EchoLensInstaller
             CoreApplication.Exit();
         }
 
-        private void installButton_Click(object sender, RoutedEventArgs e)
+        private async void installButton_Click(object sender, RoutedEventArgs e)
         {
             InstallButton.Visibility = Visibility.Collapsed;
             CancelButton.Visibility = Visibility.Collapsed;
 
             var (url, filename) = _appDownloadInfo;
-            downloadAndInstall(url, filename);
+
+            using (var session = new ExtendedExecutionSession())
+            {
+                session.Reason = ExtendedExecutionReason.Unspecified;
+                session.Description = "Installing App to Device";
+                session.Revoked += (_, args) => Trace.WriteLine("Extended Session Revoked: " + args.Reason);
+                ExtendedExecutionResult extendedExecutionResult = await session.RequestExtensionAsync();
+
+                Trace.WriteLine(extendedExecutionResult);
+
+                await downloadAndInstall(url, filename);
+            }
         }
 
-        private async void downloadAndInstall(Uri fileToDownload, string packageName)
+        private async Task downloadAndInstall(Uri fileToDownload, string packageName)
         {
+
+            var resultText = "Nothing";
+            var pkgRegistered = true;
+
+
+
             InstallProgressBar.Visibility = Visibility.Visible;
             InstallValueTextBlock.Visibility = Visibility.Visible;
 
             IProgress<DeploymentProgress> progressCallback = new Progress<DeploymentProgress>(installProgress);
-            var resultText = "Nothing";
 
             Notification.ShowInstallationHasStarted(packageName);
-            var pkgRegistered = true;
 
             try
             {
+                var sw = Stopwatch.StartNew();
                 var addPackageOperation = _packageManager.AddPackageAsync(fileToDownload, null,
                     DeploymentOptions.ForceApplicationShutdown | DeploymentOptions.ForceUpdateFromAnyVersion);
+
                 // There is no progress callback while downloading (that I have found)
-                PermissionTextBlock.Text = "Downloading 📥\nInstallation will continue when downloading is complete.";
+                PermissionTextBlock.Text = "Downloading 📥";
+                InstallValueTextBlock.Text = "Progress will remain at 0% until download is complete.";
 
                 // Subscribe to the progress callback.
                 addPackageOperation.Progress += (_, progressInfo) => { progressCallback.Report(progressInfo); };
 
-                var result = await addPackageOperation;
+                //if (addPackageOperation.Status != AsyncStatus.Completed)
+                //{
+                //    Console.WriteLine(
+                //        $"Add Package Status: {addPackageOperation.Status}. Exception: {addPackageOperation.ErrorCode}");
+                //}
 
+                Trace.WriteLine($"Add Package Started");
+
+                // For some reason `await addPackageOperation` stops silently after ~30 seconds when building Release builds.
+                // (The task still runs, but no progress is ever reported to the EchoInstaller. The apps usually install successfully.)
+                // Tested variants that stops silently
+                //     - await addPackageOperation.AsTask(progressCallback);
+                //     - await addPackageOperation;
+                // Instead of awaiting we do a hacky "while" loop. This seems to solve the issue.
+                var delay = TimeSpan.FromSeconds(0.2);
+                while (addPackageOperation.Status == AsyncStatus.Started)
+                    await Task.Delay(delay);
+
+                var result = addPackageOperation.GetResults();
+                Trace.WriteLine($"Add Package Finished after " + sw.Elapsed);
+                
                 ensureIsAppRegistered(result);
             }
 
@@ -143,17 +186,18 @@ namespace EchoLensInstaller
                 pkgRegistered = false;
             }
 
+
             CancelButton.Content = "Exit";
             CancelButton.Visibility = Visibility.Visible;
             if (pkgRegistered)
             {
                 PermissionTextBlock.Text = "Installation Complete ✔";
-                ResultTextBlock.Text = "You can now close this window.";
+                ResultTextBlock.Text = "You can now close this window by clicking X in the top right corner.";
                 Notification.ShowInstallationHasCompleted(packageName);
             }
             else
             {
-                ResultTextBlock.Text = resultText + " ❌";
+                ResultTextBlock.Text = "Error: " + resultText + " ❌";
                 Notification.SendError(resultText);
             }
         }
@@ -167,9 +211,12 @@ namespace EchoLensInstaller
             if (result.IsRegistered)
                 return;
 
-            Debug.WriteLine(result.ErrorText);
+            Trace.WriteLine(result.ErrorText);
             throw result.ExtendedErrorCode;
         }
+
+
+
 
         /// <summary>
         /// Updates the progress bar and status of the installation in the app UI.
