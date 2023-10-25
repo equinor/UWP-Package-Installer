@@ -1,24 +1,47 @@
-# UWP-Package-Installer
-An UWP installer for appx/appxbundle packages
+# Echo App Installer
 
-You can download the installer here: https://github.com/colinkiama/UWP-Package-Installer/releases
+Public Repository.
 
-Need help or have questions? Contact me at colinkiama@gmail.com
- 
-<img src="/screenshot.gif?raw=true">
+Internal Runbook: <https://github.com/equinor/Echo/docs/emr-echolens-apps-installer.md>
 
+## What is it?
 
-The App installs the packages with or without their dependencies and displays errors in case something goes wrong.
+An UWP installer for remote packages. 
 
-Devices on Windows 10 Creators Update and Later get their install progress in the action center. Devices on older versions of Windows 10 have their install progress inside the installer's app UI and a few notifications in the app.
+The App installs the packages, displays errors in case something goes wrong.
 
-This is fully capable of replacing the buillt in app installer on Windows 10 and Windows Device Portal (for sideloading apps onto your device).
+The intended use of this is to create an alternative app-installer for the HoloLens 2 the built in app installer on Windows 10 and Windows Device Portal (for sideloading apps onto your device).
 
-Feel free to use this code for your own projects too. WARNING: The methods used in the Package Manager class in this app do require you to manually add the following restricted capablities into your package.appxmanifest file: "packageManagement". You can learn more about restricted capablities in UWP apps here (You might need to scroll down a bit): https://docs.microsoft.com/en-us/windows/uwp/packaging/app-capability-declarations
+## Known Issues
+    
+HoloLens 1 is not supported. 
 
+## Publishing
 
-Enjoy😁!
+The app is published as a LOB app to the Equinor App Store.
 
-## Roadmap:
-- [ ] Install Certificates before packages
-- [ ] Try installing the package without dependencies when app fails to install the first time
+To publish you need access to the App Store.
+
+Publising should currently be done with Visual Studio "Publish" dialogue, and manually uploaded to <https://partner.microsoft.com> Equinor ASA organization.
+
+## Frequent Issues
+
+### App fails to Start
+
+`The program '[4972] EchoInstaller.exe' has exited with code -2147024770 (0x8007007e).`
+or `Unhandled exception at 0x00007FFD001FD759 (KernelBase.dll) in EchoInstaller.exe: 0xE0434352`
+
+I fixed this by:
+
+* Closing Visual Studio
+* Deleting the following files and folders:
+    * `EchoInstaller/bin/`
+    * `EchoInstaller/obj/`
+    * `EchoInstaller/EchoInstaller.csproj.user`
+* Starting Visual Studio
+
+I do not know why this happens, but it seems to happen after a Prod Build for the Windows Store is created.
+
+## Credits
+
+This codebase is forked from @colinkiama's UWP-Package-Installer: <https://github.com/colinkiama/UWP-Package-Installer>.
