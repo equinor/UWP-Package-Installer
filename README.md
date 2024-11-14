@@ -1,5 +1,7 @@
 # Echo App Installer
 
+⚠️ Archived on 2024-11-14: No longer in use as installing apps directly on HoloLens 2 is now supported natively. ⚠️
+
 Public Repository.
 
 Internal Runbook: <https://github.com/equinor/Echo/tree/master/docs/emr-echolens-apps-installer.md>
